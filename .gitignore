@@ -2,9 +2,9 @@
 target/
 Cargo.lock
 
-# Output
-output/
-*.json
+# Output (runtime results, not source code)
+/output/
+results.json
 
 # OS
 .DS_Store
