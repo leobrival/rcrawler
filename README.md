@@ -143,7 +143,7 @@ Real-world performance (depth 2, 20 workers):
 ### MVP3 Features (In Progress)
 
 - [x] **HTML report generation** - Interactive reports with graph visualization
-- [ ] **Sitemap.xml discovery** - Auto-discover and parse sitemap files
+- [x] **Sitemap.xml discovery** - Auto-discover and parse sitemap files (regular + index)
 - [ ] **robots.txt support** - Respect robots.txt rules and crawl-delay
 - [ ] **Checkpoint/resume** - Save state and resume interrupted crawls
 - [ ] **Exclude patterns** - Filter out static files (images, CSS, JS)
