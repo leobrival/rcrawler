@@ -1,6 +1,6 @@
 # rcrawler
 
-High-performance web crawler written in pure Rust. **4.5x smaller**, **10x faster startup**, and **2x less memory** than the TypeScript/Go hybrid crawler.
+High-performance web crawler written in pure Rust with production-grade features.
 
 ## Features
 
@@ -16,19 +16,13 @@ High-performance web crawler written in pure Rust. **4.5x smaller**, **10x faste
 
 ## Claude Code Integration
 
-Use the `/crawler` command in Claude Code for easy access:
+This crawler is integrated with [Claude Code](https://claude.ai/code) as a skill.
 
-```
-/crawler https://example.com
-```
-
-The command provides:
-- Natural language parsing of crawl requests
+See the [Claude Code skill](https://github.com/leobrival/.claude/tree/main/skills/web-crawler) for:
+- Natural language crawl requests
 - Real-time progress monitoring
 - Automatic result opening
-- Error handling and suggestions
-
-Command location: `~/.claude/commands/crawler.md`
+- Command reference
 
 ## Installation
 
@@ -130,7 +124,7 @@ Open the report by navigating to `./output/index.html` in your browser.
 
 ## Performance
 
-### Benchmarks (MVP2)
+### Benchmarks
 
 Real-world performance (depth 2, 20 workers):
 
@@ -141,31 +135,26 @@ Real-world performance (depth 2, 20 workers):
 | github.com/anthropics | 162 | 13s | 12 pages/s |
 | docs.rs | 28 | 3s | 9 pages/s |
 
-**Comparison with TypeScript+Go crawler**:
+### Metrics
 
-| Metric | TS+Go | Rust MVP2 | Improvement |
-|--------|-------|-----------|-------------|
-| adonisjs.com | 13.6s | 6.5s | **2.1x faster** ⚡ |
-| Binary size | 15 MB | 3.3 MB | **4.5x smaller** |
-| Startup time | ~500ms | <50ms | **10x faster** |
-
-### Target Metrics
-
-- **Throughput**: 200+ pages/sec ✅
+- **Throughput**: 60+ pages/sec
 - **Memory**: ~50MB
-- **Binary size**: ~5MB (with strip) ✅ (3.3MB achieved)
+- **Binary size**: 5.4 MB
 - **Startup time**: <50ms
 
-## Roadmap
+## Features Status
 
-### MVP3 Features (In Progress)
+### Implemented ✅
 
-- [x] **HTML report generation** - Interactive reports with graph visualization
-- [x] **Sitemap.xml discovery** - Auto-discover and parse sitemap files (regular + index)
-- [ ] **robots.txt support** - Respect robots.txt rules and crawl-delay
-- [ ] **Checkpoint/resume** - Save state and resume interrupted crawls
-- [ ] **Exclude patterns** - Filter out static files (images, CSS, JS)
-- [ ] **Raycast integration** - Native Raycast support with compact output
+- HTML report generation with graph visualization
+- Sitemap.xml discovery (regular + index)
+- robots.txt support with per-domain caching
+- Checkpoint/resume capability
+- Exclude patterns for static files
+- Raycast integration
+- Rate limiting with token bucket algorithm
+- Structured logging with tracing
+- Real-time progress monitoring
 
 ### Future Enhancements
 
