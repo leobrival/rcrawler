@@ -1,6 +1,7 @@
 //! Crawling engine with concurrent worker pool
 
 use crate::crawler::robots::RobotsChecker;
+use crate::crawler::rate_limiter::RateLimiter;
 use crate::utils::filters::UrlFilter;
 use crate::{CrawlerConfig, PageResult, CrawlStats, CrawlResults};
 use crate::parser::html::HtmlParser;
@@ -26,6 +27,7 @@ pub struct CrawlEngine {
     parser: HtmlParser,
     robots_checker: Option<RobotsChecker>,
     url_filter: UrlFilter,
+    rate_limiter: RateLimiter,
     visited: Arc<DashMap<String, ()>>,
     results: Arc<Mutex<Vec<PageResult>>>,
     stats: Arc<Mutex<CrawlStats>>,
@@ -51,12 +53,16 @@ impl CrawlEngine {
         // Create URL filter
         let url_filter = UrlFilter::new(&config.exclude_patterns, &config.include_patterns);
 
+        // Create rate limiter
+        let rate_limiter = RateLimiter::new(config.rate_limit);
+
         Ok(Self {
             config,
             client,
             parser: HtmlParser::new(),
             robots_checker,
             url_filter,
+            rate_limiter,
             visited: Arc::new(DashMap::new()),
             results: Arc::new(Mutex::new(Vec::new())),
             stats: Arc::new(Mutex::new(CrawlStats::new())),
@@ -162,6 +168,32 @@ impl CrawlEngine {
 
             handles.push(handle);
         }
+
+        // Spawn progress monitoring task (every 5 seconds)
+        let stats_clone = Arc::clone(&self.stats);
+        let active_jobs_clone = Arc::clone(&self.active_jobs);
+        let shutdown_clone = Arc::clone(&self.shutdown);
+        tokio::spawn(async move {
+            let mut ticker = tokio::time::interval(Duration::from_secs(5));
+            loop {
+                ticker.tick().await;
+
+                if shutdown_clone.load(std::sync::atomic::Ordering::SeqCst) {
+                    break;
+                }
+
+                let stats = stats_clone.lock();
+                let active = active_jobs_clone.load(std::sync::atomic::Ordering::SeqCst);
+
+                eprintln!(
+                    "[Progress] Pages: {}/{} | Active jobs: {} | Errors: {}",
+                    stats.pages_crawled,
+                    stats.pages_found,
+                    active,
+                    stats.errors
+                );
+            }
+        });
 
         // Spawn monitoring task that signals shutdown when all jobs are done
         let active_jobs = Arc::clone(&self.active_jobs);
@@ -300,6 +332,9 @@ impl CrawlEngine {
     }
 
     async fn crawl_page(&self, url: &str, depth: usize) -> Result<PageResult> {
+        // Wait for rate limiter before making request
+        self.rate_limiter.wait().await;
+
         let response = self.client.get(url).send().await?;
 
         let status_code = response.status().as_u16();
@@ -337,6 +372,7 @@ impl Clone for CrawlEngine {
             parser: HtmlParser::new(),
             robots_checker: self.robots_checker.clone(),
             url_filter: self.url_filter.clone(),
+            rate_limiter: self.rate_limiter.clone(),
             visited: Arc::clone(&self.visited),
             results: Arc::clone(&self.results),
             stats: Arc::clone(&self.stats),

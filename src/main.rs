@@ -1,6 +1,7 @@
 use clap::Parser;
-use rcrawler::{config, crawler::engine::CrawlEngine, output::html, output::json, integrations::raycast};
+use rcrawler::{config, crawler::engine::CrawlEngine, output::html, output::json, integrations::raycast, utils::logger};
 use std::path::PathBuf;
+use tracing::info;
 
 #[derive(Parser, Debug)]
 #[command(name = "rcrawler")]
@@ -50,6 +51,9 @@ struct Cli {
 async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
+    // Initialize logger
+    logger::init_logger(cli.debug);
+
     // Build configuration
     let config = config::build_config(
         cli.url,
@@ -62,8 +66,8 @@ async fn main() -> anyhow::Result<()> {
         cli.sitemap,
     );
 
-    println!("Starting crawl of: {}", config.base_url);
-    println!("Config: {} workers, depth {}", config.max_workers, config.max_depth);
+    info!("Starting crawl of: {}", config.base_url);
+    info!("Config: {} workers, depth {}", config.max_workers, config.max_depth);
 
     // Create engine and crawl
     let engine = CrawlEngine::new(config.clone())?;
