@@ -1,5 +1,7 @@
 //! Crawling engine with concurrent worker pool
 
+use crate::crawler::robots::RobotsChecker;
+use crate::utils::filters::UrlFilter;
 use crate::{CrawlerConfig, PageResult, CrawlStats, CrawlResults};
 use crate::parser::html::HtmlParser;
 use crate::parser::sitemap::SitemapParser;
@@ -22,6 +24,8 @@ pub struct CrawlEngine {
     config: CrawlerConfig,
     client: reqwest::Client,
     parser: HtmlParser,
+    robots_checker: Option<RobotsChecker>,
+    url_filter: UrlFilter,
     visited: Arc<DashMap<String, ()>>,
     results: Arc<Mutex<Vec<PageResult>>>,
     stats: Arc<Mutex<CrawlStats>>,
@@ -37,10 +41,22 @@ impl CrawlEngine {
             .gzip(true)
             .build()?;
 
+        // Create robots checker if enabled
+        let robots_checker = if config.respect_robots_txt {
+            Some(RobotsChecker::new(config.timeout, "rcrawler/0.1.0".to_string()))
+        } else {
+            None
+        };
+
+        // Create URL filter
+        let url_filter = UrlFilter::new(&config.exclude_patterns, &config.include_patterns);
+
         Ok(Self {
             config,
             client,
             parser: HtmlParser::new(),
+            robots_checker,
+            url_filter,
             visited: Arc::new(DashMap::new()),
             results: Arc::new(Mutex::new(Vec::new())),
             stats: Arc::new(Mutex::new(CrawlStats::new())),
@@ -235,18 +251,33 @@ impl CrawlEngine {
                 // Queue discovered links if depth allows
                 if job.depth < self.config.max_depth {
                     for link in &result.links {
-                        if !self.visited.contains_key(link) {
-                            // CRITICAL: Increment BEFORE sending (Go pattern lines 342, 352, 408)
-                            self.active_jobs.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                        // Skip if already visited
+                        if self.visited.contains_key(link) {
+                            continue;
+                        }
 
-                            if tx.send(CrawlJob {
-                                url: link.clone(),
-                                depth: job.depth + 1,
-                            }).await.is_err() {
-                                // Channel closed, decrement back
-                                self.active_jobs.fetch_sub(1, std::sync::atomic::Ordering::SeqCst);
-                                break;
+                        // Check URL filter (exclude patterns)
+                        if !self.url_filter.should_crawl(link) {
+                            continue;
+                        }
+
+                        // Check robots.txt if enabled
+                        if let Some(ref checker) = self.robots_checker {
+                            if !checker.is_allowed(link).await {
+                                continue;
                             }
+                        }
+
+                        // CRITICAL: Increment BEFORE sending (Go pattern lines 342, 352, 408)
+                        self.active_jobs.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+
+                        if tx.send(CrawlJob {
+                            url: link.clone(),
+                            depth: job.depth + 1,
+                        }).await.is_err() {
+                            // Channel closed, decrement back
+                            self.active_jobs.fetch_sub(1, std::sync::atomic::Ordering::SeqCst);
+                            break;
                         }
                     }
                 }
@@ -304,6 +335,8 @@ impl Clone for CrawlEngine {
             config: self.config.clone(),
             client: self.client.clone(),
             parser: HtmlParser::new(),
+            robots_checker: self.robots_checker.clone(),
+            url_filter: self.url_filter.clone(),
             visited: Arc::clone(&self.visited),
             results: Arc::clone(&self.results),
             stats: Arc::clone(&self.stats),

@@ -1,5 +1,5 @@
 use clap::Parser;
-use rcrawler::{config, crawler::engine::CrawlEngine, output::html, output::json};
+use rcrawler::{config, crawler::engine::CrawlEngine, output::html, output::json, integrations::raycast};
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
@@ -76,11 +76,19 @@ async fn main() -> anyhow::Result<()> {
     let html_path = config.output_dir.join("index.html");
     html::write_html_report(&results, &html_path)?;
 
-    println!("\nCrawl complete!");
-    println!("Pages crawled: {}", results.stats.pages_crawled);
-    println!("Duration: {:?}ms", results.stats.duration);
-    println!("Results saved to: {}", json_path.display());
-    println!("HTML report: {}", html_path.display());
+    // Check if running in Raycast environment
+    if raycast::is_raycast_env() {
+        // Compact output for Raycast
+        let raycast_output = raycast::format_for_raycast(&results);
+        println!("{}", raycast_output);
+    } else {
+        // Standard output
+        println!("\nCrawl complete!");
+        println!("Pages crawled: {}", results.stats.pages_crawled);
+        println!("Duration: {:?}ms", results.stats.duration);
+        println!("Results saved to: {}", json_path.display());
+        println!("HTML report: {}", html_path.display());
+    }
 
     Ok(())
 }
