@@ -45,6 +45,10 @@ struct Cli {
     /// Enable debug logging
     #[arg(long)]
     debug: bool,
+
+    /// Resume from checkpoint if available
+    #[arg(long)]
+    resume: bool,
 }
 
 #[tokio::main]
