@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["Leo Brival"]
 description = "High-performance web crawler in Rust"
 license = "MIT"
+keywords = ["crawler", "scraper", "web-crawler", "html-to-markdown", "ai-agents"]
 
 [dependencies]
 # Async runtime - multi-threaded
