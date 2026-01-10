@@ -4,12 +4,14 @@ High-performance web crawler written in Rust.
 
 ## Features
 
-- Fast async crawling with Tokio
-- Configurable worker pool
-- Rate limiting
-- HTML parsing with scraper
-- JSON output
-- Predefined profiles (fast, deep, gentle)
+- ⚡ Fast async crawling with Tokio
+- 🔧 Configurable worker pool
+- ⏱️  Rate limiting
+- 📄 HTML parsing with scraper
+- 💾 JSON output
+- 📊 **Interactive HTML report with graph visualization**
+- 🎨 Dark/light theme (auto-detection)
+- 📋 Predefined profiles (fast, deep, gentle)
 
 ## Installation
 
@@ -52,7 +54,11 @@ cargo build --release
 
 ## Output
 
-Results are saved to `./output/results.json` (or custom directory) in the format:
+The crawler generates two files in the output directory:
+
+### 1. JSON Results (`results.json`)
+
+Machine-readable crawl data in JSON format:
 
 ```json
 {
@@ -79,6 +85,30 @@ Results are saved to `./output/results.json` (or custom directory) in the format
   ]
 }
 ```
+
+### 2. HTML Report (`index.html`)
+
+Interactive visual report with:
+
+- **Dashboard view**:
+  - Stats cards (pages crawled, links found, errors, duration)
+  - Pages grouped by depth
+  - Collapsible link sections
+  - Status badges (200 = success, other = error)
+
+- **Graph view**:
+  - Force-directed graph visualization
+  - Interactive nodes (hover for details, click to open)
+  - Visual link relationships
+  - Auto-layout with zoom/pan
+
+- **Features**:
+  - Dark/light theme (auto-detection via `prefers-color-scheme`)
+  - Responsive design (mobile-friendly)
+  - Fast rendering with force-graph library
+  - No external dependencies (CDN-hosted fonts + force-graph)
+
+Open the report by navigating to `./output/index.html` in your browser.
 
 ## Performance
 
@@ -107,6 +137,24 @@ Real-world performance (depth 2, 20 workers):
 - **Memory**: ~50MB
 - **Binary size**: ~5MB (with strip) ✅ (3.3MB achieved)
 - **Startup time**: <50ms
+
+## Roadmap
+
+### MVP3 Features (In Progress)
+
+- [x] **HTML report generation** - Interactive reports with graph visualization
+- [ ] **Sitemap.xml discovery** - Auto-discover and parse sitemap files
+- [ ] **robots.txt support** - Respect robots.txt rules and crawl-delay
+- [ ] **Checkpoint/resume** - Save state and resume interrupted crawls
+- [ ] **Exclude patterns** - Filter out static files (images, CSS, JS)
+- [ ] **Raycast integration** - Native Raycast support with compact output
+
+### Future Enhancements
+
+- JavaScript rendering with headless browser
+- Distributed crawling with Redis queue
+- Dynamic resource limits based on CPU/RAM
+- LLM-ready markdown output
 
 ## Development
 
