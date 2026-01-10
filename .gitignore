@@ -1,0 +1,17 @@
+# Rust
+target/
+Cargo.lock
+
+# Output
+output/
+*.json
+
+# OS
+.DS_Store
+.vscode/
+.idea/
+
+# Temporary
+/tmp/
+*.tmp
+*.bak
