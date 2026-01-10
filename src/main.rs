@@ -1,5 +1,5 @@
 use clap::Parser;
-use rcrawler::{config, crawler::engine::CrawlEngine, output::json};
+use rcrawler::{config, crawler::engine::CrawlEngine, output::html, output::json};
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
@@ -70,13 +70,17 @@ async fn main() -> anyhow::Result<()> {
     let results = engine.crawl().await?;
 
     // Output results
-    let output_path = config.output_dir.join("results.json");
-    json::write_json(&results, &output_path)?;
+    let json_path = config.output_dir.join("results.json");
+    json::write_json(&results, &json_path)?;
+
+    let html_path = config.output_dir.join("index.html");
+    html::write_html_report(&results, &html_path)?;
 
     println!("\nCrawl complete!");
     println!("Pages crawled: {}", results.stats.pages_crawled);
     println!("Duration: {:?}ms", results.stats.duration);
-    println!("Results saved to: {}", output_path.display());
+    println!("Results saved to: {}", json_path.display());
+    println!("HTML report: {}", html_path.display());
 
     Ok(())
 }
