@@ -1,7 +1,28 @@
 ---
 name: web-crawler
-description: High-performance Rust web crawler with stealth mode, LLM-ready Markdown export, multi-format output, sitemap discovery, and robots.txt support. Use for web crawling, content extraction, and site analysis.
+description: High-performance Rust web crawler with stealth mode, LLM-ready Markdown export, multi-format output, sitemap discovery, and robots.txt support. Optimized for content extraction, site mapping, structure analysis, and LLM/RAG pipelines.
+version: 1.0.0
+author: Leo Brival
 license: MIT
+keywords:
+  - web-crawler
+  - web-scraping
+  - rust
+  - performance
+  - sitemap-discovery
+  - robots-txt
+  - content-extraction
+  - markdown-export
+  - llm-ready
+  - html-to-markdown
+tags:
+  - web-crawling
+  - data-extraction
+  - site-analysis
+  - automation
+allowed-tools:
+  - Bash
+  - WebFetch
 ---
 
 # Rust Web Crawler (rcrawler)
