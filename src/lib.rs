@@ -196,13 +196,17 @@ pub struct GraphData {
 
 impl Default for CrawlerConfig {
 	fn default() -> Self {
+		let output_dir = dirs::home_dir()
+			.map(|home| home.join("Desktop").join("crawl_results"))
+			.unwrap_or_else(|| PathBuf::from("./output"));
+
 		Self {
 			base_url: String::new(),
 			allowed_domain: None,
 			max_depth: 2,
 			max_workers: 20,
 			rate_limit: 2.0,
-			output_dir: PathBuf::from("./output"),
+			output_dir,
 			use_sitemap: true,
 			max_sitemap_urls: 1000,
 			timeout: 30,

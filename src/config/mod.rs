@@ -51,6 +51,11 @@ pub fn build_config(
     if let Some(s) = sitemap {
         config.use_sitemap = s;
     }
-    
+
+    // Ensure output directory exists
+    if let Err(e) = std::fs::create_dir_all(&config.output_dir) {
+        eprintln!("Warning: Could not create output directory: {}", e);
+    }
+
     config
 }

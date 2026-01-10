@@ -67,6 +67,9 @@ rand = "0.8"
 hyper = { version = "1", features = ["client", "http1", "http2"] }
 hyper-util = "0.1"
 
+# Home directory access
+dirs = "5"
+
 [[bin]]
 name = "rcrawler"
 path = "src/main.rs"
