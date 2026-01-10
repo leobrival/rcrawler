@@ -6,7 +6,8 @@ license: MIT
 
 # Rust Web Crawler (rcrawler)
 
-High-performance web crawler built in **pure Rust** with production-grade features for fast, reliable site crawling.
+High-performance web crawler built in **pure Rust** with
+production-grade features for fast, reliable site crawling.
 
 ## When to Use This Skill
 
@@ -62,7 +63,7 @@ Use this skill when the user requests:
 
 ### Binary Location
 
-```
+```bash
 ~/.claude/skills/web-crawler/bin/rcrawler
 ```
 
@@ -163,7 +164,7 @@ Binary size: 5.4 MB
 
 **Output**:
 
-```
+```console
 [2026-01-10T01:17:27Z] INFO Starting crawl of: https://example.com
 [2026-01-10T01:17:27Z] INFO Config: 20 workers, depth 2
 Fetching sitemap URLs...
@@ -180,7 +181,8 @@ HTML report: ./output/index.html
 ### Example 2: Stealth Mode with Markdown Export
 
 ```bash
-~/.claude/skills/web-crawler/bin/rcrawler https://docs.example.com --stealth --markdown -f markdown -d 3
+~/.claude/skills/web-crawler/bin/rcrawler https://docs.example.com \
+  --stealth --markdown -f markdown -d 3
 ```
 
 **Use case**: Content extraction for LLM/RAG pipelines
@@ -198,7 +200,8 @@ HTML report: ./output/index.html
 ### Example 4: Multi-Format Export
 
 ```bash
-~/.claude/skills/web-crawler/bin/rcrawler https://example.com -f json,markdown,csv,links -o ./export
+~/.claude/skills/web-crawler/bin/rcrawler https://example.com \
+  -f json,markdown,csv,links -o ./export
 ```
 
 **Use case**: Export data in multiple formats simultaneously
@@ -216,7 +219,7 @@ HTML report: ./output/index.html
 
 ### Directory Structure
 
-```
+```text
 ./output/
 ├── results.json       # Structured crawl data
 ├── results.md         # LLM-ready Markdown (with --markdown)
@@ -352,7 +355,7 @@ When crawl completes, inform user:
 
 ### Binary Not Found
 
-```bash
+```console
 # Check if binary exists
 ls ~/.claude/skills/web-crawler/bin/rcrawler
 
