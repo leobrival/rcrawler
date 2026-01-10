@@ -1,0 +1,30 @@
+# Sync Configuration for web-crawler skill
+# This file documents how to synchronize this project to the Claude skills directory
+
+## Synced Files
+- src/ (complete source code)
+- templates/ (HTML templates)
+- Cargo.toml and Cargo.lock
+- README.md
+- SKILL.md (skill documentation)
+- target/release/rcrawler → bin/rcrawler (binary)
+
+## Sync Script Location
+~/.claude/skills/web-crawler/sync.sh
+
+## Usage
+```bash
+# From anywhere
+sh ~/.claude/skills/web-crawler/sync.sh
+
+# The script will:
+# 1. Copy all files listed above
+# 2. Rebuild binary if necessary
+# 3. Copy binary to bin/
+# 4. Test that everything works
+```
+
+## Notes
+- Sync overwrites existing files in the skill directory
+- Binary is automatically rebuilt if missing
+- After sync, the skill is immediately usable

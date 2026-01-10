@@ -10,6 +10,7 @@ pub mod crawler;
 pub mod integrations;
 pub mod output;
 pub mod parser;
+pub mod services;
 pub mod utils;
 
 /// Configuration for the web crawler

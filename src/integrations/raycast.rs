@@ -71,7 +71,7 @@ struct RaycastPage {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use crate::CrawlStats;
+	use crate::{CrawlStats, PageResult};
 	use chrono::Utc;
 
 	#[test]

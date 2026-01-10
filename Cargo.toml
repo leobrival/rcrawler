@@ -60,6 +60,9 @@ robotstxt = "0.3"
 # Markdown conversion (LLM-ready output)
 html2md = "0.2"
 
+# Random number generation (for stealth mode)
+rand = "0.8"
+
 # Connection pooling
 hyper = { version = "1", features = ["client", "http1", "http2"] }
 hyper-util = "0.1"
