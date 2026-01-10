@@ -18,7 +18,7 @@ lol_html = "2.0"
 scraper = "0.22"  # Fallback pour queries complexes
 
 # XML parsing (sitemap)
-quick-xml = "0.37"
+quick-xml = { version = "0.37", features = ["serialize"] }
 
 # CLI
 clap = { version = "4", features = ["derive"] }

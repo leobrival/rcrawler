@@ -2,6 +2,7 @@
 
 use crate::{CrawlerConfig, PageResult, CrawlStats, CrawlResults};
 use crate::parser::html::HtmlParser;
+use crate::parser::sitemap::SitemapParser;
 use anyhow::Result;
 use chrono::Utc;
 use dashmap::DashMap;
@@ -52,12 +53,60 @@ impl CrawlEngine {
         let (tx, rx) = mpsc::channel::<CrawlJob>(10000);
         let rx = Arc::new(tokio::sync::Mutex::new(rx));
 
-        // Seed with initial URL - INCREMENT BEFORE SENDING
-        self.active_jobs.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-        tx.send(CrawlJob {
-            url: self.config.base_url.clone(),
-            depth: 0,
-        }).await?;
+        // Try to fetch sitemap URLs first if enabled
+        if self.config.use_sitemap {
+            if let Some(domain) = &self.config.allowed_domain {
+                println!("Fetching sitemap URLs...");
+                let sitemap_parser = SitemapParser::new(self.config.timeout, self.config.max_sitemap_urls);
+
+                match sitemap_parser.fetch_sitemap_urls(domain).await {
+                    Ok(urls) if !urls.is_empty() => {
+                        println!("Adding {} URLs from sitemap", urls.len());
+                        for url in urls {
+                            if !self.visited.contains_key(&url) {
+                                self.active_jobs.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                                tx.send(CrawlJob {
+                                    url,
+                                    depth: 1, // Sitemap URLs start at depth 1
+                                }).await?;
+                            }
+                        }
+                    }
+                    Ok(_) => {
+                        println!("No sitemap URLs found, falling back to base URL");
+                        // Fallback to base URL
+                        self.active_jobs.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                        tx.send(CrawlJob {
+                            url: self.config.base_url.clone(),
+                            depth: 0,
+                        }).await?;
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to fetch sitemap: {}", e);
+                        // Fallback to base URL
+                        self.active_jobs.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                        tx.send(CrawlJob {
+                            url: self.config.base_url.clone(),
+                            depth: 0,
+                        }).await?;
+                    }
+                }
+            } else {
+                // No domain specified, use base URL
+                self.active_jobs.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                tx.send(CrawlJob {
+                    url: self.config.base_url.clone(),
+                    depth: 0,
+                }).await?;
+            }
+        } else {
+            // Sitemap disabled, use base URL
+            self.active_jobs.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+            tx.send(CrawlJob {
+                url: self.config.base_url.clone(),
+                depth: 0,
+            }).await?;
+        }
 
         // Spawn workers
         let mut handles = Vec::new();
