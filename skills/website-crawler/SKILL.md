@@ -1,10 +1,13 @@
 ---
 name: web-crawler
 description: High-performance Rust web crawler with stealth mode, LLM-ready Markdown export, multi-format output, sitemap discovery, and robots.txt support. Optimized for content extraction, site mapping, structure analysis, and LLM/RAG pipelines.
-version: 1.0.0
-allowed-tools:
-  - Bash
-  - WebFetch
+argument-hint: [URL]
+allowed-tools: Bash(~/.claude/skills/web-crawler/bin/rcrawler:*), Read, WebFetch
+context: fork
+agent: general-purpose
+handoffs:
+  - command: /commit
+    condition: "When crawl results saved"
 ---
 
 # Rust Web Crawler (rcrawler)
